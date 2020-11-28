@@ -2,20 +2,20 @@ package ru.spbstu.antufievsemen.courseworkSMO_2.Device;
 
 import java.util.concurrent.ThreadLocalRandom;
 import ru.spbstu.antufievsemen.courseworkSMO_2.buffer.Buffer;
-import ru.spbstu.antufievsemen.courseworkSMO_2.counter.DeviceCounter;
+import ru.spbstu.antufievsemen.courseworkSMO_2.archive.DeviceArchiveRequest;
+import ru.spbstu.antufievsemen.courseworkSMO_2.globaltime.GlobalTime;
 import ru.spbstu.antufievsemen.courseworkSMO_2.source.request.Request;
 
 public class Device extends Thread {
 
   private int number;
-  private DeviceCounter deviceCounter;
+  private DeviceArchiveRequest deviceArchiveRequest;
   private DeviceBuffer deviceBuffer;
   private Buffer buffer;
-  private long freeTime;
 
-  public Device(int number, DeviceCounter deviceCounter, Buffer buffer, DeviceBuffer deviceBuffer) {
+  public Device(int number, DeviceArchiveRequest deviceArchiveRequest, Buffer buffer, DeviceBuffer deviceBuffer) {
     this.number = number;
-    this.deviceCounter = deviceCounter;
+    this.deviceArchiveRequest = deviceArchiveRequest;
     this.deviceBuffer = deviceBuffer;
     this.buffer = buffer;
   }
@@ -24,12 +24,30 @@ public class Device extends Thread {
     return number;
   }
 
-  public long getFreeTime() {
-    return freeTime;
-  }
-
   public long calculatedTime(int bound) {
     return ThreadLocalRandom.current().nextInt(bound);
+  }
+
+  public void showArrivalRequestTime(Request request, long currentTime) {
+    StringBuffer stringBuffer = new StringBuffer()
+            .append("{Device : ")
+            .append(this.number)
+            .append(" take request ")
+            .append(request.getCounterNumber())
+            .append(" time: ")
+            .append(currentTime);
+    System.out.println(stringBuffer);
+  }
+
+  public void showDeviceFreeTime() {
+    long currentTime = GlobalTime.startOrGetTime();
+    StringBuffer stringBuffer = new StringBuffer()
+            .append("{Device : ")
+            .append(this.number)
+            .append(" time free: ")
+            .append(currentTime)
+            .append("}");
+    System.out.println(stringBuffer);
   }
 
   @Override
@@ -37,15 +55,20 @@ public class Device extends Thread {
     while (deviceBuffer.isSourceWorking() || !buffer.isClear()) {
       if (deviceBuffer.getPointer() == number) {
         if (!buffer.isClear()) {
-          Request request = buffer.giveRequest();
-          deviceBuffer.incrementPointer();
           try {
-            Thread.sleep(calculatedTime(10));
+            long currentTime = GlobalTime.startOrGetTime();
+            Request request = buffer.giveRequest();
+            deviceBuffer.incrementPointer();
+            showArrivalRequestTime(request, currentTime);
+            long timeForWorking = calculatedTime(10);
+            deviceArchiveRequest.writeInArchive(request, currentTime, timeForWorking);
+            Thread.sleep(timeForWorking);
           } catch (InterruptedException e) {
           }
-          deviceCounter.readInfoRequest(number, request);
+          showDeviceFreeTime();
         }
       }
     }
   }
+
 }

@@ -1,10 +1,26 @@
 package ru.spbstu.antufievsemen.courseworkSMO_2.globaltime;
 
-public class GlobalTime {
+import java.util.concurrent.atomic.AtomicInteger;
 
-  public static long START_TIME;
+public final class GlobalTime {
 
-  public GlobalTime() {
-    START_TIME = System.currentTimeMillis();
+  private static Long START_TIME;
+
+  private GlobalTime() {
   }
+
+  /**
+   * В первое обращение возвращает 0, как старт отсчета. В последующие возвращает стартовое значяение + дельта.
+   *
+   * @return
+   */
+  public static long startOrGetTime() {
+    long currentTimeMillis = System.currentTimeMillis();
+    if (START_TIME == null) {
+      START_TIME = currentTimeMillis;
+    }
+    return currentTimeMillis - START_TIME;
+  }
+
+
 }

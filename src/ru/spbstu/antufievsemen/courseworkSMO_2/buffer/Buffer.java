@@ -3,6 +3,8 @@ package ru.spbstu.antufievsemen.courseworkSMO_2.buffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import ru.spbstu.antufievsemen.courseworkSMO_2.archive.BufferArchiveRequest;
+import ru.spbstu.antufievsemen.courseworkSMO_2.archive.SourceArchiveRequest;
 import ru.spbstu.antufievsemen.courseworkSMO_2.source.request.Request;
 
 public class Buffer {
@@ -10,9 +12,11 @@ public class Buffer {
   private List<Request> buffer;
   private int size;
   private AtomicInteger pointer;
+  private BufferArchiveRequest bufferArchiveRequest;
 
-  public Buffer(int size) {
+  public Buffer(int size, BufferArchiveRequest bufferArchiveRequest) {
     this.size = size;
+    this.bufferArchiveRequest = bufferArchiveRequest;
     buffer = new ArrayList<>();
     for (int i = 0; i < size; i++) {
       buffer.add(null);
@@ -35,7 +39,7 @@ public class Buffer {
       if (buffer.get(valueTemp) == null) {
         buffer.set(valueTemp, request);
         incrementPointer();
-//        showInfoBuffer(buffer);
+        showInfoBuffer(buffer);
         return;
       }
       incrementPointer();
@@ -54,6 +58,8 @@ public class Buffer {
     }
     int index = buffer.indexOf(removeRequest);
     buffer.set(index, null);
+    showInfoCancelRequest(removeRequest);
+    bufferArchiveRequest.writeCancelRequestArchive(removeRequest);
     takeRequest(request);
   }
 
@@ -85,6 +91,16 @@ public class Buffer {
     }
   }
 
+  public void showInfoCancelRequest(Request request) {
+    StringBuffer stringBuilder = new StringBuffer();
+    stringBuilder.append("{Cancel ")
+            .append(request.getNumber());
+    stringBuilder.append(" request number: ")
+            .append(request.getCounterNumber())
+            .append("}");
+    System.out.println(stringBuilder);
+  }
+
   public StringBuffer showInfoRequest(Request request) {
     StringBuffer stringBuilder = new StringBuffer();
     stringBuilder.append("Source: ")
@@ -99,6 +115,7 @@ public class Buffer {
   public void showInfoBuffer(List<Request> buffer) {
     for (int i = 0; i < size; i++) {
       StringBuffer stringBuffer = new StringBuffer()
+              .append("(")
               .append(i + 1)
               .append(". ");
       if (buffer.get(i) == null) {
@@ -106,6 +123,7 @@ public class Buffer {
       } else {
         stringBuffer.append(showInfoRequest(buffer.get(i)));
       }
+      stringBuffer.append(")");
       System.out.println(stringBuffer.toString());
     }
   }

@@ -2,23 +2,23 @@ package ru.spbstu.antufievsemen.courseworkSMO_2.source;
 
 import java.util.ArrayList;
 import java.util.List;
+import ru.spbstu.antufievsemen.courseworkSMO_2.archive.SourceArchiveRequest;
 import ru.spbstu.antufievsemen.courseworkSMO_2.buffer.Buffer;
-import ru.spbstu.antufievsemen.courseworkSMO_2.counter.SourceCounter;
 
 public class SourceBuffer {
 
   private int size;
   private int constraint;
   private Buffer buffer;
-  private SourceCounter sourceCounter;
+  private SourceArchiveRequest sourceArchiveRequest;
   private List<Source> sourceList;
 
 
-  public SourceBuffer(int size, int constraint, Buffer buffer, SourceCounter sourceCounter) {
+  public SourceBuffer(int size, int constraint, Buffer buffer, SourceArchiveRequest sourceArchiveRequest) {
     this.size = size;
     this.constraint = constraint;
     this.buffer = buffer;
-    this.sourceCounter = sourceCounter;
+    this.sourceArchiveRequest = sourceArchiveRequest;
     sourceList = new ArrayList<>();
   }
 
@@ -33,7 +33,7 @@ public class SourceBuffer {
 
   public void start() {
     for (int i = 0; i < size; i++) {
-      Source source = new Source(i, constraint, buffer, sourceCounter);
+      Source source = new Source(i, constraint, buffer, sourceArchiveRequest);
       sourceList.add(source);
     }
     sourceList.forEach(Thread::start);

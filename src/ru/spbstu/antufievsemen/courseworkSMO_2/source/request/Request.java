@@ -10,7 +10,7 @@ public class Request {
   public Request(int number, int counterNumber, long creatingTime) {
     this.number = number;
     this.counterNumber = counterNumber;
-    this.creatingTime = (creatingTime - GlobalTime.START_TIME);
+    this.creatingTime = creatingTime;
   }
 
   public int getCounterNumber() {
@@ -29,7 +29,12 @@ public class Request {
     return creatingTime;
   }
 
-  public void showInfo() {
-    System.out.println("Request: " + number + "time: " + creatingTime);
+  @Override
+  public String toString() {
+    return "Request{" +
+            "counterNumber=" + counterNumber +
+            ", number=" + number +
+            ", creatingTime=" + creatingTime +
+            '}';
   }
 }

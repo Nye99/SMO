@@ -2,8 +2,9 @@ package ru.spbstu.antufievsemen.courseworkSMO_2.source;
 
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
+import ru.spbstu.antufievsemen.courseworkSMO_2.archive.SourceArchiveRequest;
 import ru.spbstu.antufievsemen.courseworkSMO_2.buffer.Buffer;
-import ru.spbstu.antufievsemen.courseworkSMO_2.counter.SourceCounter;
+import ru.spbstu.antufievsemen.courseworkSMO_2.globaltime.GlobalTime;
 import ru.spbstu.antufievsemen.courseworkSMO_2.source.request.Request;
 
 public class Source extends Thread {
@@ -13,18 +14,18 @@ public class Source extends Thread {
   private int constraint;
   private long timeFree;
   private Buffer buffer;
-  private SourceCounter sourceCounter;
+  private SourceArchiveRequest sourceArchiveRequest;
 
-  public Source(int number, int constraint, Buffer buffer, SourceCounter sourceCounter) {
+  public Source(int number, int constraint, Buffer buffer, SourceArchiveRequest sourceArchiveRequest) {
     this.number = number;
     this.constraint = constraint;
     this.buffer = buffer;
-    this.sourceCounter = sourceCounter;
+    this.sourceArchiveRequest = sourceArchiveRequest;
     counterRequest = new AtomicInteger(1);
   }
 
   public Request createRequest() {
-    return new Request(number, counterRequest.getAndIncrement(), System.currentTimeMillis());
+    return new Request(number, counterRequest.getAndIncrement(), GlobalTime.startOrGetTime());
   }
 
   public long calculatedTime(int bound) {
@@ -33,9 +34,10 @@ public class Source extends Thread {
 
   public void showInfoRequest(Request request) {
     StringBuffer stringBuilder = new StringBuffer();
-    stringBuilder.append("Source: ").append(request.getNumber());
-    stringBuilder.append(" Request number: ").append(request.getCounterNumber());
-    stringBuilder.append(" Creation time: ").append(request.getCreatingTime());
+    stringBuilder.append("{Source: ").append(request.getNumber());
+    stringBuilder.append(" create request number: ").append(request.getCounterNumber());
+    stringBuilder.append(" time: ").append(request.getCreatingTime())
+    .append("}");
     System.out.println(stringBuilder.toString());
   }
 
@@ -45,10 +47,10 @@ public class Source extends Thread {
     while (counterRequest++ < constraint) {
       Request request = createRequest();
       showInfoRequest(request);
-      sourceCounter.readInfoRequest(request);
+      sourceArchiveRequest.writeRequestArchive(request);
       buffer.takeRequest(request);
       try {
-        Thread.sleep(calculatedTime(10));
+        Thread.sleep(calculatedTime(5));
       } catch (InterruptedException e) {
       }
     }

@@ -3,23 +3,23 @@ package ru.spbstu.antufievsemen.courseworkSMO_2.Device;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import ru.spbstu.antufievsemen.courseworkSMO_2.archive.DeviceArchiveRequest;
 import ru.spbstu.antufievsemen.courseworkSMO_2.buffer.Buffer;
-import ru.spbstu.antufievsemen.courseworkSMO_2.counter.DeviceCounter;
 import ru.spbstu.antufievsemen.courseworkSMO_2.source.SourceBuffer;
 
 public class DeviceBuffer {
 
   private int size;
   private AtomicInteger pointer;
-  private DeviceCounter deviceCounter;
+  private DeviceArchiveRequest deviceArchiveRequest;
   private SourceBuffer sourceBuffer;
   private Buffer buffer;
   private List<Device> deviceList;
 
-  public DeviceBuffer(int size, SourceBuffer sourceBuffer, Buffer buffer, DeviceCounter deviceCounter) {
+  public DeviceBuffer(int size, SourceBuffer sourceBuffer, Buffer buffer, DeviceArchiveRequest deviceArchiveRequest) {
     this.size = size;
     pointer = new AtomicInteger(0);
-    this.deviceCounter = deviceCounter;
+    this.deviceArchiveRequest = deviceArchiveRequest;
     this.sourceBuffer = sourceBuffer;
     this.buffer = buffer;
     deviceList = new ArrayList<>();
@@ -39,19 +39,18 @@ public class DeviceBuffer {
     return sourceBuffer.isAlive();
   }
 
-  public int freeDevice() {
-    long time = System.currentTimeMillis();
+  public boolean isAlive() {
     for (Device device : deviceList) {
-      if (device.getFreeTime() < time) {
-        return device.getNumber();
+      if (device.isAlive()) {
+        return true;
       }
     }
-    return -1;
+    return false;
   }
 
   public void start() {
     for (int i = 0; i < size; i++) {
-      Device device = new Device(i, deviceCounter, buffer, this);
+      Device device = new Device(i, deviceArchiveRequest, buffer, this);
       deviceList.add(device);
     }
     deviceList.forEach(Thread::start);
