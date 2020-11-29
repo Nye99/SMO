@@ -17,9 +17,11 @@ public class SourceArchiveRequest {
   }
 
   public void showInfoRequest() {
-    for (Request request : requestList) {
-      System.out.println(request.toString());
+    if (!requestList.isEmpty()) {
+      for (Request request : requestList) {
+        System.out.println(request.toString());
+      }
+      System.out.println();
     }
-    System.out.println();
   }
 }

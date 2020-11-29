@@ -17,9 +17,11 @@ public class DeviceArchiveRequest {
   }
 
   public void showInfo() {
-    for (DeviceStamp deviceStamp : listDeviceStamp) {
-      System.out.println(deviceStamp.toString());
+    if (!listDeviceStamp.isEmpty()) {
+      for (DeviceStamp deviceStamp : listDeviceStamp) {
+        System.out.println(deviceStamp.toString());
+      }
+      System.out.println();
     }
-    System.out.println();
   }
 }
